@@ -3,7 +3,7 @@ new file mode 100644
 index 0000000..8ec1622
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,47 @@
+@@ -0,0 +1,45 @@
 +SRCDIR=src
 +INCLUDEDIR=include
 +BUILDDIR=build
@@ -44,8 +44,6 @@ index 0000000..8ec1622
 +
 +$(SRCDIR)/registries.c $(INCLUDEDIR)/registries.h: $(NOTCHIAN_DIR)/.dump_registries
 +	node build_registries.js
-+
-+install:
 +
 +clean:
 +	$(RM) -r $(OBJS) $(NOTCHIAN_DIR) $(INCLUDEDIR)/registries.h $(SRCDIR)/registries.c
