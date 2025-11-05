@@ -1,0 +1,53 @@
+diff --git a/Makefile b/Makefile
+new file mode 100644
+index 0000000..8ec1622
+--- /dev/null
++++ b/Makefile
+@@ -0,0 +1,47 @@
++SRCDIR=src
++INCLUDEDIR=include
++BUILDDIR=build
++NOTCHIAN_DIR=notchian
++SERVER_JAR=server.jar
++SRCS := $(wildcard $(SRCDIR)/*.c)
++ifeq ($(wildcard $(SRCDIR)/registries.c),)
++SRCS += $(SRCDIR)/registries.c
++endif
++OBJS := $(patsubst $(SRCDIR)/%.c,$(BUILDDIR)/%.o,$(SRCS))
++SERVER_DL_URL= https://piston-data.mojang.com/v1/objects/6bce4ef400e4efaa63a13d5e6f6b500be969ef81/server.jar
++
++override CFLAGS+=-O2 -I$(INCLUDEDIR)
++
++all: bareiron
++
++bareiron: $(OBJS)
++	$(CC) $(OBJS) $(CFLAGS) -o $@
++
++$(BUILDDIR):
++	mkdir -p $(BUILDDIR)
++
++$(BUILDDIR)/%.o: $(SRCDIR)/%.c $(SRCDIR)/registries.c $(INCLUDEDIR)/registries.h | $(BUILDDIR)
++	$(CC) $(CFLAGS) -c $< -o $@
++
++#     Download Minecraft Server
++server_dl: $(NOTCHIAN_DIR)/$(SERVER_JAR)
++
++$(NOTCHIAN_DIR)/$(SERVER_JAR):
++	mkdir -p $(dir $@)
++	wget -O $@ $(SERVER_DL_URL)
++
++#     Generate registry data
++$(NOTCHIAN_DIR)/.dump_registries: $(NOTCHIAN_DIR)/$(SERVER_JAR)
++	cd $(NOTCHIAN_DIR) && \
++	java -DbundlerMainClass="net.minecraft.data.Main" -jar "$(SERVER_JAR)" --all
++	touch $@
++
++$(SRCDIR)/registries.c $(INCLUDEDIR)/registries.h: $(NOTCHIAN_DIR)/.dump_registries
++	node build_registries.js
++
++install:
++
++clean:
++	$(RM) -r $(OBJS) $(NOTCHIAN_DIR) $(INCLUDEDIR)/registries.h $(SRCDIR)/registries.c
++
++.PHONY: all bareiron clean install server_dl dump_registries
